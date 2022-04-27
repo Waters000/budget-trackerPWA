@@ -19,7 +19,7 @@ request.onsuccess = function(event) {
     // check if app is online, if yes run saveRecord() function to send all local db data to api
     if (navigator.onLine) {
       // we haven't created this yet, but we will soon, so let's comment it out for now
-       saveRecord();
+       uploadTransaction();
     }
   };
   
@@ -40,6 +40,8 @@ function saveRecord(record) {
     transactionObjectStore.add(record);
   }
 
+
+
   function uploadTransaction() {
     // open a transaction on your db
     const transaction = db.transaction(['new_transaction'], 'readwrite');
@@ -49,12 +51,14 @@ function saveRecord(record) {
   
     // get all records from store and set to a variable
     const getAll = transactionObjectStore.getAll();
+
+
   
 // upon a successful .getAll() execution, run this function
 getAll.onsuccess = function() {
     // if there was data in indexedDb's store, let's send it to the api server
     if (getAll.result.length > 0) {
-      fetch('/api/transaction', {
+      fetch('/api/transaction/bulk', {
         method: 'POST',
         body: JSON.stringify(getAll.result),
         headers: {
@@ -80,7 +84,8 @@ getAll.onsuccess = function() {
           console.log(err);
         });
     }
-  };  }
+  };
+ };
 
   // listen for app coming back online
 window.addEventListener('online', uploadTransaction);
